@@ -1,3 +1,4 @@
+const amqp = require("amqplib");
 const { connectToRabbitMQ } = require("./rabbitmq");
 
 async function consumeFromQueue(queueName) {
@@ -12,16 +13,10 @@ async function consumeFromQueue(queueName) {
         `Received message from ${queueName}:`,
         JSON.parse(msg.content.toString())
       );
-      // Add your authentication logic here
     },
     { noAck: true }
   );
 }
-
-// consumeFromQueue("main_queue");
-
-// const amqp = require('amqplib');
-const amqp = require("amqplib");
 
 async function main() {
   const connection = await amqp.connect("amqp://localhost");
@@ -40,7 +35,7 @@ async function main() {
     const isAuthenticated = await authenticateUser(userData);
     if (isAuthenticated) {
       console.log("User authenticated successfully:", userData.username);
-      // Send response
+      //*  Send response to reply queue
       channel.sendToQueue(
         msg.properties.replyTo,
         Buffer.from("Authenticated"),
@@ -50,7 +45,7 @@ async function main() {
       );
     } else {
       console.log("Authentication failed for user:", userData.username);
-      // Send response
+      //*  Send response to reply queue
       channel.sendToQueue(
         msg.properties.replyTo,
         Buffer.from("Not Authenticated"),
@@ -66,8 +61,7 @@ async function main() {
 }
 
 async function authenticateUser(userData) {
-  // Implement your authentication logic here
-  // Example: Check credentials against a database
+  //   * ->> authentication logic here
   return userData.username === "example" && userData.password === "password";
 }
 
